@@ -1,7 +1,7 @@
 /*************************************************************************//**
  *****************************************************************************
- * @file   cddir.c
- * @brief  cddir()
+ * @file   rmdir.c
+ * @brief  rmdir()
  *****************************************************************************
  *****************************************************************************/
 
@@ -18,21 +18,21 @@
 #include "proto.h"
 
 /*****************************************************************************
- *                                cddir
+ *                                rmdir
  *****************************************************************************/
 /**
- * Change current directory.
+ * Remove an empty directory.
  * 
  * @param pathname  The full path of the directory to enter.
  * 
  * @return 0 if successful, otherwise -1.
  *****************************************************************************/
 
-PUBLIC int cddir(const char *pathname)
+PUBLIC int rmdir(const char *pathname)
 {
 	MESSAGE msg;
 
-	msg.type = CDDIR;
+	msg.type = RMDIR;
 
 	msg.PATHNAME = (void*)pathname;
 	msg.NAME_LEN = strlen(pathname);

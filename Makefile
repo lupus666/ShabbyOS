@@ -43,7 +43,8 @@ LOBJS		=  lib/syscall.o\
 			lib/open.o lib/read.o lib/write.o lib/close.o lib/unlink.o\
 			lib/lseek.o\
 			lib/getpid.o lib/stat.o\
-			lib/fork.o lib/exit.o lib/wait.o lib/exec.o
+			lib/fork.o lib/exit.o lib/wait.o lib/exec.o\
+			lib/cddir.o lib/rmdir.o lib/mkdir.o
 DASMOUTPUT	= kernel.bin.asm
 
 # All Phony Targets
@@ -192,6 +193,15 @@ lib/stat.o: lib/stat.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 lib/lseek.o: lib/lseek.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/cddir.o: lib/cddir.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/rmdir.o: lib/rmdir.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/mkdir.o: lib/mkdir.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 mm/main.o: mm/main.c

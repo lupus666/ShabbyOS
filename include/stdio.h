@@ -150,5 +150,14 @@ PUBLIC int	stat		(const char *path, struct stat *buf);
 /* lib/syslog.c */
 PUBLIC	int	syslog		(const char *fmt, ...);
 
+/* lib/mkdir.c */
+PUBLIC int mkdir(const char *pathname);
+
+/* lib/cddir.c */
+PUBLIC int cddir(const char *pathname);
+
+/* lib/rmdir.c */
+PUBLIC int rmdir(const char *pathname);
+
 
 #endif /* _ORANGES_STDIO_H_ */

@@ -286,7 +286,7 @@ PRIVATE struct inode * create_dir(char * path)
  * @return Zero if success.
  *****************************************************************************/
 
-PUBLIC int do_cddir()//还差返回上级
+PUBLIC int do_cddir()
 {
 	char pathname[MAX_PATH];
 
@@ -299,6 +299,18 @@ PUBLIC int do_cddir()//还差返回上级
 		  name_len);
 	pathname[name_len] = 0;
 
+	if(pathname[0] == '.' && pathname[1] = '.'){
+		if(current_inode->i_parent){
+			current_dir = i_parent;
+			current_inode = get_inode(current_inode->i_dev, current_dir);
+			put_inode(current_inode);
+			return 0;
+		}
+		else{
+			printl("{FS} the current_dir is the root dir");
+			return -1;
+		}
+	}
 	int inode_nr = search_file(pathname, 0);
 
 	struct inode * pin = 0;
@@ -308,7 +320,7 @@ PUBLIC int do_cddir()//还差返回上级
 		return -1;
 	}
 	else{
-		pin = get_inode(current_dir->i_dev, inode_nr);
+		pin = get_inode(current_inode->i_dev, inode_nr);
 		current_dir = inode_nr;
 		current_inode = pin;
 		return 0;
