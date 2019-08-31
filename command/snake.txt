@@ -1,0 +1,269 @@
+#include<iostream>
+#include<thread>
+#include<stdlib.h>
+#include <conio.h>
+#include<set>
+
+
+void clear()
+{
+	int i = 0;
+	for (i = 0; i < 8; i++)
+	{
+		std::cout << std::endl;
+	}
+}
+
+
+using namespace std;
+int map[20][20] = { 0 };
+set<pair<int, int>>body;
+struct node
+{
+	int x, y;
+	int dir1;
+	int dir2;
+	node* frontbody;
+	node* nextbody;
+	node()
+	{
+		x = y = -1;
+		dir1 = dir2 = 0;
+		frontbody = nextbody = nullptr;
+	}
+};
+node* head = new node;
+node* tail = new node;
+void init()
+{
+	head->frontbody = nullptr;
+	head->dir1 = 1;
+	head->dir2 = 0;
+	head->x = 0;
+	head->y = 2;
+	tail->nextbody = nullptr;
+	tail->dir1 = 1;
+	tail->dir2 = 0;
+	tail->x = tail->y = 0;
+	node* mid=new node;
+	mid->dir1 = 1;
+	mid->dir2 = 0;
+	mid->x = 0;
+	mid->y = 1;
+	mid->nextbody = tail;
+	mid->frontbody = head;
+	head->nextbody = mid;
+	tail->frontbody = mid;
+	body.insert(make_pair(head->x, head->y));
+	body.insert(make_pair(tail->x, tail->y));
+	body.insert(make_pair(mid->x, mid->y));
+}
+void move1()
+{
+	set<pair<int, int>>::iterator it;
+	for (it = body.begin();it!=body.end(); it++)
+	{
+		if (*it == make_pair(tail->x, tail->y))
+			break;
+	}
+	body.erase(it);
+	node* newhead=new node;
+	newhead->dir1 = head->dir1;
+	newhead->dir2 = head->dir2;
+	newhead->x = head->x + head->dir2;
+	newhead->y = head->y + head->dir1;
+	head->frontbody = newhead;
+	newhead->nextbody = head;
+	head = newhead;
+	map[tail->x][tail->y] = 0;
+	tail = tail->frontbody;
+	delete tail->nextbody;
+	map[head->x][head->y] = 1;
+	body.insert(make_pair(head->x, head->y));
+}
+void buildsnack(node* root)
+{
+	node* cur = root;
+	while (cur != nullptr)
+	{
+		map[cur->x][cur->y] = 1;
+		cur = cur->nextbody;
+	}
+}
+void print()
+{
+	system("cls");
+	for (int i = 0; i < 20; i++)
+	{
+		for (int j = 0; j < 20; j++)
+		{
+			cout << map[i][j] << " ";
+			if (j == 19)
+				cout << endl;
+		}
+	}
+	cout << endl;
+}
+void correct()
+{
+	if (tail->dir1 != tail->frontbody->dir1&&tail->dir2 != tail->frontbody->dir2)
+	{
+		tail->dir1 = tail->frontbody->dir1;
+		tail->dir2 = tail->frontbody->dir2;
+	}
+	else
+		return;
+}
+void move2()
+{
+	int ch = 40;
+	if (_kbhit())
+	{
+		set<pair<int, int>>::iterator it;
+		for (it = body.begin(); it != body.end();)
+		{
+			if (*it == make_pair(tail->x, tail->y))
+			{
+				body.erase(it++);
+			}
+			else
+			{
+				it++;
+			}
+		}
+		ch = _getch();
+		node* newhead = new node;
+		if (ch == 75)      //左行
+		{
+			newhead->dir1 = -1;
+			newhead->dir2 = 0;
+			newhead->nextbody = head;
+			newhead->frontbody = nullptr;
+			newhead->x = head->x;
+			newhead->y = head->y - 1;
+			head->frontbody = newhead;
+			head = newhead;
+			map[head->x][head->y] = 1;
+			map[tail->x][tail->y] = 0;
+			tail = tail->frontbody;
+			delete tail->nextbody;
+			print();
+		}
+		else if (ch == 72)      //上行
+		{
+			newhead->dir1 = 0;
+			newhead->dir2 = -1;
+			newhead->nextbody = head;
+			newhead->frontbody = nullptr;
+			newhead->x = head->x - 1;
+			newhead->y = head->y;
+			head->frontbody = newhead;
+			head = newhead;
+			map[head->x][head->y] = 1;
+			map[tail->x][tail->y] = 0;
+			tail = tail->frontbody;
+			delete tail->nextbody;
+			print();
+		}
+		else if (ch == 77)       //右行
+		{
+			newhead->dir1 = 1;
+			newhead->dir2 = 0;
+			newhead->nextbody = head;
+			newhead->frontbody = nullptr;
+			newhead->x = head->x;
+			newhead->y = head->y + 1;
+			head->frontbody = newhead;
+			head = newhead;
+			map[head->x][head->y] = 1;
+			map[tail->x][tail->y] = 0;
+			tail = tail->frontbody;
+			delete tail->nextbody;
+			print();
+		}
+		else if (ch == 80)         //下行
+		{
+			newhead->dir1 = 0;
+			newhead->dir2 = 1;
+			newhead->nextbody = head;
+			newhead->frontbody = nullptr;
+			newhead->x = head->x + 1;
+			newhead->y = head->y;
+			head->frontbody = newhead;
+			head = newhead;
+			map[head->x][head->y] = 1;
+			map[tail->x][tail->y] = 0;
+			tail = tail->frontbody;
+			delete tail->nextbody;
+			print();
+		}
+		body.insert(make_pair(newhead->x, newhead->y));
+		//clear();
+	}
+}
+void eat(int id)
+{
+	int posx = id / 20;
+	int posy = id % 20;
+	int td1 = tail->dir1;
+	int td2 = tail->dir2;
+	node* newnode = new node;
+	newnode->dir1 = td1;
+	newnode->dir2 = td2;
+	newnode->frontbody = tail;
+	tail->nextbody = newnode;
+	newnode->x = tail->x - td2;
+	newnode->y = tail->y - td1;
+	map[newnode->x][newnode->y] = 1;
+	body.insert(make_pair(newnode->x, newnode->y));
+	tail = newnode;
+}
+
+bool check(int id)
+{
+	int posx = id / 20;
+	int posy = id % 20;
+	if (head->x == posx&&head->y == posy)
+	{
+		eat(id);
+		return true;
+	}
+	else
+		return false;
+}
+
+int food()
+{
+	srand((unsigned)time(NULL));
+	int x = rand() % 20;
+	int y = rand() % 20;
+	while(body.count(make_pair(x, y)))
+	{
+		x = rand() % 20;
+		y = rand() % 20;
+	}
+	map[x][y] = 1;
+	return 20 * x + y;
+}
+
+void game()
+{
+	int count = food();
+	while (check(count) == false)
+	{
+		move2();
+		correct();
+	}
+}
+int main()
+{
+	init();
+	buildsnack(head);
+	print();
+	int time = 0;
+	while (1)
+	{
+		game();
+		time++;
+	}
+}
