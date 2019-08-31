@@ -36,7 +36,6 @@ disp_str:
 	push    esi
     push    edi
     push    eax
-    push    ebx
 	mov	ebp, esp
 
 	mov	esi, [ebp + 8]	; pszInfo
@@ -67,7 +66,6 @@ disp_str:
 .2:
 	mov	[disp_pos], edi
 
-    pop ebx
     pop eax
     pop edi
     pop esi
@@ -82,7 +80,6 @@ disp_color_str:
 	push    esi
     push    edi
     push    eax
-    push    ebx
 	mov	ebp, esp
 
 	mov	esi, [ebp + 8]	; pszInfo
@@ -113,7 +110,6 @@ disp_color_str:
 .2:
 	mov	[disp_pos], edi
 	
-    pop ebx
     pop eax
     pop edi
     pop esi
