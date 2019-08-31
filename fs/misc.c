@@ -2,8 +2,6 @@
  *****************************************************************************
  * @file   misc.c
  * @brief  
- * @author Forrest Y. Yu
- * @date   2008
  *****************************************************************************
  *****************************************************************************/
 
@@ -45,7 +43,7 @@ PUBLIC int do_stat()
 		  name_len);
 	pathname[name_len] = 0;	/* terminate the string */
 
-	int inode_nr = search_file(pathname, 1);
+	int inode_nr = search_file(pathname, 1, 1);
 	if (inode_nr == INVALID_INODE) {	/* file not found */
 		printl("{FS} FS::do_stat():: search_file() returns "
 		       "invalid inode: %s\n", pathname);
@@ -55,7 +53,7 @@ PUBLIC int do_stat()
 	struct inode * pin = 0;
 
 	struct inode * dir_inode;
-	if (strip_path(filename, pathname, &dir_inode) != 0) {
+	if (strip_path(filename, pathname, &dir_inode, 0) != 0) {
 		/* theoretically never fail here
 		 * (it would have failed earlier when
 		 *  search_file() was called)
@@ -92,14 +90,14 @@ PUBLIC int do_stat()
  * @see open()
  * @see do_open()
  *****************************************************************************/
-PUBLIC int search_file(char * path, int flag)
+PUBLIC int search_file(char * path, int flag, int syscall)
 {
 	int i, j;
 
 	char filename[MAX_PATH];
 	memset(filename, 0, MAX_FILENAME_LEN);
 	struct inode * dir_inode;
-	if (strip_path(filename, path, &dir_inode) != 0)
+	if (strip_path(filename, path, &dir_inode, syscall) != 0)
 		return 0;
 
 	if (filename[0] == 0)	/* path: "/" */
@@ -123,12 +121,15 @@ PUBLIC int search_file(char * path, int flag)
 		pde = (struct dir_entry *)fsbuf;
 		for (j = 0; j < SECTOR_SIZE / DIR_ENTRY_SIZE; j++,pde++) {
 			if (memcmp(filename, pde->name, MAX_FILENAME_LEN) == 0)
+				/*
 				if(flag){
-					if(pde->i_mode == I_REGULAR)return pde->inode_nr;
+					if(pde->i_mode != I_DIRECTORY)return pde->inode_nr;
 				}
 				else{
 					if(pde->i_mode == I_DIRECTORY)return pde->inode_nr;
 				}
+				*/
+				return pde->inode_nr;
 			if (++m > nr_dir_entries)
 				break;
 		}
@@ -170,7 +171,7 @@ PUBLIC int search_file(char * path, int flag)
  * @return Zero if success, otherwise the pathname is not valid.
  *****************************************************************************/
 PUBLIC int strip_path(char * filename, const char * pathname,
-		      struct inode** ppinode)
+		      struct inode** ppinode, int syscall)
 {
 	const char * s = pathname;
 	char * t = filename;
@@ -191,7 +192,11 @@ PUBLIC int strip_path(char * filename, const char * pathname,
 	}
 	*t = 0;
 
-	*ppinode = current_inode;
+	if(syscall){
+		*ppinode = root_inode;
+	}else{
+		*ppinode = current_inode;
+	}
 
 	return 0;
 }

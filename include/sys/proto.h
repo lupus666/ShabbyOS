@@ -87,6 +87,9 @@ PUBLIC int		do_lseek();
 PUBLIC int      do_mkdir();
 PUBLIC int 		do_cddir();
 
+/* fs/lsdir.c */
+PUBLIC int 		do_lsdir();
+
 /* fs/read_write.c */
 PUBLIC int		do_rdwt();
 
@@ -97,8 +100,8 @@ PUBLIC int 		do_rmdir();
 /* fs/misc.c */
 PUBLIC int		do_stat();
 PUBLIC int		strip_path(char * filename, const char * pathname,
-				   struct inode** ppinode);
-PUBLIC int		search_file(char * path, int flag);
+				   struct inode** ppinode, int syscall);
+PUBLIC int		search_file(char * path, int flag, int syscall);
 
 /* fs/disklog.c */
 PUBLIC int		do_disklog();

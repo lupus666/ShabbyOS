@@ -2,8 +2,6 @@
  *****************************************************************************
  * @file   open.c
  * @brief  open()
- * @author Forrest Y. Yu
- * @date   2008
  *****************************************************************************
  *****************************************************************************/
 
@@ -30,7 +28,7 @@
  * 
  * @return File descriptor if successful, otherwise -1.
  *****************************************************************************/
-PUBLIC int open(const char *pathname, int flags)
+PUBLIC int open(const char *pathname, int flags, int syscall)
 {
 	MESSAGE msg;
 
@@ -39,6 +37,7 @@ PUBLIC int open(const char *pathname, int flags)
 	msg.PATHNAME	= (void*)pathname;
 	msg.FLAGS	= flags;
 	msg.NAME_LEN	= strlen(pathname);
+	msg.DEVICE = syscall;
 
 	send_recv(BOTH, TASK_FS, &msg);
 	assert(msg.type == SYSCALL_RET);

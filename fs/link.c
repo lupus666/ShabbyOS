@@ -2,8 +2,6 @@
  *****************************************************************************
  * @file   link.c
  * @brief  
- * @author Forrest Y. Yu
- * @date   Tue Jun  3 17:05:10 2008
  *****************************************************************************
  *****************************************************************************/
 
@@ -50,7 +48,7 @@ PUBLIC int do_unlink()
 		return -1;
 	}
 
-	int inode_nr = search_file(pathname, 1);
+	int inode_nr = search_file(pathname, 1, 0);
 	if (inode_nr == INVALID_INODE) {	/* file not found */
 		printl("{FS} FS::do_unlink():: search_file() returns "
 			"invalid inode: %s\n", pathname);
@@ -59,7 +57,7 @@ PUBLIC int do_unlink()
 
 	char filename[MAX_PATH];
 	struct inode * dir_inode;
-	if (strip_path(filename, pathname, &dir_inode) != 0)
+	if (strip_path(filename, pathname, &dir_inode, 0) != 0)
 		return -1;
 
 	struct inode * pin = get_inode(dir_inode->i_dev, inode_nr);
@@ -235,7 +233,7 @@ PUBLIC int do_rmdir()
 		return -1;
 	}
 
-	int inode_nr = search_file(pathname, 0);
+	int inode_nr = search_file(pathname, 0, 0);
 	if (inode_nr == INVALID_INODE) {	/* dir not found */
 		printl("{FS} FS::do_rmdir():: search_file() returns "
 			"invalid inode: %s\n", pathname);
@@ -244,7 +242,7 @@ PUBLIC int do_rmdir()
 
 	char filename[MAX_PATH];
 	struct inode * dir_inode;
-	if (strip_path(filename, pathname, &dir_inode) != 0)
+	if (strip_path(filename, pathname, &dir_inode, 0) != 0)
 		return -1;
 
 	struct inode * pin = get_inode(dir_inode->i_dev, inode_nr);
@@ -268,6 +266,9 @@ PUBLIC int do_rmdir()
 		       pathname, dir_ent_nr - 1);
 		return -1;
 	}
+
+	struct super_block * sb = get_super_block(pin->i_dev);
+
 
 	/*************************/
 	/* free the bit in i-map */

@@ -181,7 +181,7 @@ struct posix_tar_header
 void untar(const char * filename)
 {
 	printf("[extract `%s'\n", filename);
-	int fd = open(filename, O_RDWR);
+	int fd = open(filename, O_RDWR, 1);
 	assert(fd != -1);
 
 	char buf[SECTOR_SIZE * 16];
@@ -210,7 +210,7 @@ void untar(const char * filename)
 			f_len = (f_len * 8) + (*p++ - '0'); /* octal */
 
 		int bytes_left = f_len;
-		int fdout = open(phdr->name, O_CREAT | O_RDWR | O_TRUNC);
+		int fdout = open(phdr->name, O_CREAT | O_RDWR | O_TRUNC, 1);
 		if (fdout == -1) {
 			printf("    failed to extract file: %s\n", phdr->name);
 			printf(" aborted]\n");
@@ -251,9 +251,9 @@ void untar(const char * filename)
  *****************************************************************************/
 void shabby_shell(const char * tty_name)
 {
-	int fd_stdin  = open(tty_name, O_RDWR);
+	int fd_stdin  = open(tty_name, O_RDWR, 1);
 	assert(fd_stdin  == 0);
-	int fd_stdout = open(tty_name, O_RDWR);
+	int fd_stdout = open(tty_name, O_RDWR, 1);
 	assert(fd_stdout == 1);
 
 	char rdbuf[128];
@@ -284,7 +284,7 @@ void shabby_shell(const char * tty_name)
 		} while(ch);
 		argv[argc] = 0;
 
-		int fd = open(argv[0], O_RDWR);
+		int fd = open(argv[0], O_RDWR, 1);
 		if (fd == -1) {
 			if (rdbuf[0]) {
 				write(1, "{", 1);
@@ -318,9 +318,9 @@ void shabby_shell(const char * tty_name)
  *****************************************************************************/
 void Init()
 {
-	int fd_stdin  = open("/dev_tty0", O_RDWR);
+	int fd_stdin  = open("/dev_tty0", O_RDWR, 1);
 	assert(fd_stdin  == 0);
-	int fd_stdout = open("/dev_tty0", O_RDWR);
+	int fd_stdout = open("/dev_tty0", O_RDWR, 1);
 	assert(fd_stdout == 1);
 
 	printf("Init() is running ...\n");

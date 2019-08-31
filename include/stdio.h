@@ -11,6 +11,7 @@
 #define	_ORANGES_STDIO_H_
 
 #include "type.h"
+#include "fs.h"
 
 /* the assert macro */
 #define ASSERT
@@ -110,7 +111,7 @@ PUBLIC	int	sprintf(char *buf, const char *fmt, ...);
 #endif
 
 /* lib/open.c */
-PUBLIC	int	open		(const char *pathname, int flags);
+PUBLIC	int	open		(const char *pathname, int flags, int syscall);
 
 /* lib/close.c */
 PUBLIC	int	close		(int fd);
@@ -159,5 +160,7 @@ PUBLIC int cddir(const char *pathname);
 /* lib/rmdir.c */
 PUBLIC int rmdir(const char *pathname);
 
+/* lib/lsdir.c */
+PUBLIC int lsdir(struct dir_entry *buf);
 
 #endif /* _ORANGES_STDIO_H_ */

@@ -34,7 +34,7 @@ OBJS		= kernel/kernel.o kernel/start.o kernel/main.o\
 			kernel/kliba.o kernel/klib.o\
 			lib/syslog.o\
 			mm/main.o mm/forkexit.o mm/exec.o\
-			fs/main.o fs/open.o fs/misc.o fs/read_write.o\
+			fs/main.o fs/open.o fs/misc.o fs/read_write.o fs/lsdir.o\
 			fs/link.o \
 			fs/disklog.o
 LOBJS		=  lib/syscall.o\
@@ -44,7 +44,7 @@ LOBJS		=  lib/syscall.o\
 			lib/lseek.o\
 			lib/getpid.o lib/stat.o\
 			lib/fork.o lib/exit.o lib/wait.o lib/exec.o\
-			lib/cddir.o lib/rmdir.o lib/mkdir.o
+			lib/cddir.o lib/rmdir.o lib/mkdir.o lib/lsdir.o
 DASMOUTPUT	= kernel.bin.asm
 
 # All Phony Targets
@@ -204,6 +204,9 @@ lib/rmdir.o: lib/rmdir.c
 lib/mkdir.o: lib/mkdir.c
 	$(CC) $(CFLAGS) -o $@ $<
 
+lib/lsdir.o: lib/lsdir.c
+	$(CC) $(CFLAGS) -o $@ $<
+
 mm/main.o: mm/main.c
 	$(CC) $(CFLAGS) -o $@ $<
 
@@ -217,6 +220,9 @@ fs/main.o: fs/main.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 fs/open.o: fs/open.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+fs/lsdir.o: fs/lsdir.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 fs/read_write.o: fs/read_write.c

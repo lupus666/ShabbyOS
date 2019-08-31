@@ -6,11 +6,10 @@
  *   - do_close()
  *   - do_lseek()
  *   - create_file()
- * @author Forrest Yu
- * @date   2007
  *****************************************************************************
  *****************************************************************************/
 
+#include "config.h"
 #include "type.h"
 #include "stdio.h"
 #include "const.h"
@@ -49,6 +48,7 @@ PUBLIC int do_open()
 	int flags = fs_msg.FLAGS;	/* access mode */
 	int name_len = fs_msg.NAME_LEN;	/* length of filename */
 	int src = fs_msg.source;	/* caller proc nr. */
+	int syscall = fs_msg.DEVICE;
 	assert(name_len < MAX_PATH);
 	phys_copy((void*)va2la(TASK_FS, pathname),
 		  (void*)va2la(src, fs_msg.PATHNAME),
@@ -73,7 +73,7 @@ PUBLIC int do_open()
 	if (i >= NR_FILE_DESC)
 		panic("f_desc_table[] is full (PID:%d)", proc2pid(pcaller));
 
-	int inode_nr = search_file(pathname, 1);
+	int inode_nr = search_file(pathname, 1, syscall);
 
 	struct inode * pin = 0;
 
@@ -98,7 +98,7 @@ PUBLIC int do_open()
 
 		char filename[MAX_PATH];
 		struct inode * dir_inode;
-		if (strip_path(filename, pathname, &dir_inode) != 0)
+		if (strip_path(filename, pathname, &dir_inode, syscall) != 0)
 			return -1;
 		pin = get_inode(dir_inode->i_dev, inode_nr);
 	}
@@ -169,7 +169,7 @@ PRIVATE struct inode * create_file(char * path, int flags)
 {
 	char filename[MAX_PATH];
 	struct inode * dir_inode;
-	if (strip_path(filename, path, &dir_inode) != 0)
+	if (strip_path(filename, path, &dir_inode, 0) != 0)
 		return 0;
 
 	int inode_nr = alloc_imap_bit(dir_inode->i_dev);
@@ -223,20 +223,14 @@ PUBLIC int do_mkdir()
 		  name_len);
 	pathname[name_len] = 0;
 
-	int inode_nr = search_file(pathname, 0);
+	int inode_nr = search_file(pathname, 0, 0);
 
 	struct inode * pin = 0;
 
 	if(inode_nr == INVALID_INODE){/*dir not exists*/
 		pin = create_dir(pathname);
 		/*create dir entity*/
-		memset(fsbuf, 0, SECTOR_SIZE);
-		struct dir_entry * pde = (struct dir_entry *)fsbuf;
-
-		pde->inode_nr = pin->i_num;
-		pde->i_mode = I_DIRECTORY;
-		strcpy(pde->name, ".");
-		WR_SECT(ROOT_DEV, pin->i_start_sect);
+		new_dir_entry(pin, pin->i_num, ".", I_DIRECTORY);
 
 		put_inode(pin);
 		return 0;
@@ -264,7 +258,7 @@ PRIVATE struct inode * create_dir(char * path)
 {
 	char filename[MAX_PATH];
 	struct inode * dir_inode;
-	if (strip_path(filename, path, &dir_inode) != 0)
+	if (strip_path(filename, path, &dir_inode, 0) != 0)
 		return 0;
 
 	int inode_nr = alloc_imap_bit(dir_inode->i_dev);
@@ -299,9 +293,9 @@ PUBLIC int do_cddir()
 		  name_len);
 	pathname[name_len] = 0;
 
-	if(pathname[0] == '.' && pathname[1] = '.'){
+	if(pathname[0] == '.' && pathname[1] == '.'){
 		if(current_inode->i_parent){
-			current_dir = i_parent;
+			current_dir = current_inode->i_parent;
 			current_inode = get_inode(current_inode->i_dev, current_dir);
 			put_inode(current_inode);
 			return 0;
@@ -311,7 +305,7 @@ PUBLIC int do_cddir()
 			return -1;
 		}
 	}
-	int inode_nr = search_file(pathname, 0);
+	int inode_nr = search_file(pathname, 0, 0);
 
 	struct inode * pin = 0;
 
